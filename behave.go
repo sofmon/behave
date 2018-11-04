@@ -1,3 +1,5 @@
+// Package behave as part of project https://github.com/sofmon/behave
+// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 package behave
 
 import (
@@ -20,7 +22,7 @@ type Result interface {
 	String() string
 }
 
-// JSONResult of an action that can be be read as JSON
+// JSONResult is a result that can be read as JSON object
 type JSONResult interface {
 	JSON() []byte
 }
