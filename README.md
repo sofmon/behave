@@ -1,6 +1,6 @@
 # Go behave
 
-`behave` is a package helping define, lock and check microservice behavier. It is inspired from `gherkin` but takes advantage of [Go](https://golang.org)'s strong type syntaxis, compile time verification, package initialization and [dep](https://github.com/golang/dep) dependency manager.
+`behave` is a package helping to define, lock and check microservice behavier. It is inspired from `gherkin` but it takes advantage of [Go](https://golang.org)'s strong type syntaxis, compile time verification, package initialization and [dep](https://github.com/golang/dep) dependency manager.
 
 
 # Base features
@@ -191,7 +191,7 @@ At the moment of your commit, the service code expect specific behavier from the
         ┗━━━━━━━━━┛   ┗━━━━━━━━━━━━┛
 ```
 
-The combined behaver of those services defines the environment in which the `vouchers` service is guaranteed, or at least tested, to perform correctly. 
+The combined behavior of those services defines the environment in which the `vouchers` service is guaranteed, or at least tested to perform correctly. 
 
 This is where [dep](https://github.com/golang/dep) helps. When you write all your tests. You will put them in dedicated package for that service. Then all test execution will be define in the `init()` function. This way at the moment a behave test uses the bahave features form another package, it will trigger the behaver tests for that dependent service.
 
