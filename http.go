@@ -168,7 +168,7 @@ func (x *HTTPActionCheck) Do(res Result) Result {
 
 	// statusCode
 	if resp.statusCode != x.statusCode {
-		panic(fmt.Errorf("expecting status code of %d but received %d", resp.statusCode, x.statusCode))
+		panic(fmt.Errorf("expecting status code of %d but received %d", x.statusCode, resp.statusCode))
 	}
 
 	// headers
