@@ -29,6 +29,7 @@ func (x *JSONMatch) Having_match_with(v interface{}) *JSONMatch {
 
 // Also_extracted_to specific object
 func (x *JSONMatch) Also_extracted_to(v interface{}) *JSONMatch {
+	clear(v)
 	x.e = v
 	return x
 }
