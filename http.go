@@ -168,14 +168,14 @@ func (x *HTTPActionCheck) Do(res Result) Result {
 
 	// statusCode
 	if resp.statusCode != x.statusCode {
-		panic(fmt.Errorf("expecting status code of %d but received %d", x.statusCode, resp.statusCode))
+		panic(fmt.Errorf("expecting status code of %d but received %d in response:\n%s", x.statusCode, resp.statusCode, resp.String()))
 	}
 
 	// headers
 	for k, v := range x.headers {
 		vv := resp.header.Get(k)
 		if vv != v {
-			panic(fmt.Errorf("expecting header `%s` to have value of '%s' but it has `%s`", k, v, vv))
+			panic(fmt.Errorf("expecting header `%s` to have value of '%s' but it has `%s` in response:\n%s", k, v, vv, resp.String()))
 		}
 	}
 
