@@ -5,7 +5,6 @@ package behave
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -79,9 +78,4 @@ func prefixLogf(msg string, args ...interface{}) {
 	msg = fmt.Sprintf(msg, args...)
 	msg = "\n" + prefix + strings.Replace(msg, "\n", "\n"+prefix, -1)
 	fmt.Println(msg)
-}
-
-func clear(v interface{}) {
-	p := reflect.ValueOf(v).Elem()
-	p.Set(reflect.Zero(p.Type()))
 }
