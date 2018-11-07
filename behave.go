@@ -34,29 +34,12 @@ var (
 	prefix = ""
 )
 
-// FailedResult is returned when behave fails
-type staticResult string
+// Do set of actions and indicate success
+func Do(acts ...Action) (ok bool) {
 
-func (sr staticResult) String() string {
-	return string(sr)
-}
+	ok = true
 
-func newStaticResult(msg string) *staticResult {
-	st := staticResult(msg)
-	return &st
-}
-
-var (
-	// Failure is a result returned when behave tests fails
-	Failure Result = newStaticResult("FAILURE")
-
-	// Success is a result returned when behave tests succeeds
-	Success Result = newStaticResult("SUCCESS")
-)
-
-// Do set of actions
-func Do(acts ...Action) (res Result) {
-
+	var res Result
 	for i, act := range acts {
 
 		if act == nil {
@@ -69,7 +52,7 @@ func Do(acts ...Action) (res Result) {
 				recErr := recover()
 				if recErr != nil {
 					prefixLogf(fmt.Sprintf("FAILED: %v", recErr))
-					res = Failure
+					ok = false
 				}
 			}()
 
@@ -79,10 +62,14 @@ func Do(acts ...Action) (res Result) {
 			decreasePrefix()
 
 		}()
+
+		if !ok {
+			return false
+		}
+
 	}
 
-	res = Success
-	return
+	return ok
 }
 
 func increasePrefix() {
