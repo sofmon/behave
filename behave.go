@@ -41,18 +41,17 @@ func (sr staticResult) String() string {
 	return string(sr)
 }
 
-/*
 func newStaticResult(msg string) *staticResult {
 	st := staticResult(msg)
 	return &st
-}*/
+}
 
 var (
 	// Failure is a result returned when behave tests fails
-	Failure Result = staticResult("FAILURE")
+	Failure Result = newStaticResult("FAILURE")
 
 	// Success is a result returned when behave tests succeeds
-	Success Result = staticResult("SUCCESS")
+	Success Result = newStaticResult("SUCCESS")
 )
 
 // Do set of actions
