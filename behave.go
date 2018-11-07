@@ -4,7 +4,6 @@ package behave
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -35,6 +34,21 @@ var (
 	prefix = ""
 )
 
+// FailedResult is returned when behave fails
+type staticResult string
+
+func (sr staticResult) String() string {
+	return string(sr)
+}
+
+var (
+	// Failure is a result returned when behave tests fails
+	Failure staticResult = "FAILURE"
+
+	// Success is a result returned when behave tests succeeds
+	Success staticResult = "SUCCESS"
+)
+
 // Do set of actions
 func Do(acts ...Action) (res Result) {
 
@@ -49,9 +63,8 @@ func Do(acts ...Action) (res Result) {
 			defer func() {
 				recErr := recover()
 				if recErr != nil {
-					msg := fmt.Sprintf("FAILED: %v", recErr)
-					prefixLogf(msg)
-					os.Exit(1)
+					prefixLogf(fmt.Sprintf("FAILED: %v", recErr))
+					res = Failure
 				}
 			}()
 
@@ -63,6 +76,7 @@ func Do(acts ...Action) (res Result) {
 		}()
 	}
 
+	res = Success
 	return
 }
 
