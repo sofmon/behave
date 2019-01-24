@@ -36,15 +36,17 @@ func (x *JSONMatch) Also_extracted_to(v interface{}) *JSONMatch {
 /* Action implementation */
 
 func (x *JSONMatch) String() string {
-	sb := bytes.NewBufferString("Then JSON object is having match with object like:\n")
+	sb := bytes.NewBufferString("Then result is JSON object")
 
-	bytes, err := json.Marshal(x.v)
-	if err != nil {
-		panic(err)
+	if x.v != nil {
+		bytes, err := json.Marshal(x.v)
+		if err != nil {
+			panic(err)
+		}
+		sb.WriteString(", having match with object like:\n")
+		sb.WriteString("  ")
+		sb.WriteString(strings.Replace(string(bytes), "\n", "\n  ", -1))
 	}
-
-	sb.WriteString("  ")
-	sb.WriteString(strings.Replace(string(bytes), "\n", "\n  ", -1))
 
 	return sb.String()
 }
@@ -58,27 +60,29 @@ func (x *JSONMatch) Do(res interface{}) interface{} {
 		panic(errors.New("privies operation did not produce object that can provide json"))
 	}
 
-	expData, err := json.Marshal(x.v)
-	if err != nil {
-		panic(err)
-	}
+	if x.v != nil {
+		expData, err := json.Marshal(x.v)
+		if err != nil {
+			panic(err)
+		}
 
-	err = json.Unmarshal(jsonObj.JSON(), x.v)
-	if err != nil {
-		panic(err)
-	}
+		err = json.Unmarshal(jsonObj.JSON(), x.v)
+		if err != nil {
+			panic(err)
+		}
 
-	resData, err := json.Marshal(x.v)
-	if err != nil {
-		panic(err)
-	}
+		resData, err := json.Marshal(x.v)
+		if err != nil {
+			panic(err)
+		}
 
-	if string(expData) != string(resData) {
-		panic(fmt.Errorf("expected json object does not match expectations; received object: `%s`", string(resData)))
+		if string(expData) != string(resData) {
+			panic(fmt.Errorf("expected json object does not match expectations; received object: `%s`", string(resData)))
+		}
 	}
 
 	if x.e != nil {
-		err = json.Unmarshal(jsonObj.JSON(), x.e)
+		err := json.Unmarshal(jsonObj.JSON(), x.e)
 		if err != nil {
 			panic(err)
 		}
