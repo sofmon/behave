@@ -50,7 +50,7 @@ func (x *JSONMatch) String() string {
 }
 
 // Do the action
-func (x *JSONMatch) Do(res Result) Result {
+func (x *JSONMatch) Do(res interface{}) interface{} {
 
 	jsonObj, ok := res.(JSONResult)
 

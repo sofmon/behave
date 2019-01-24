@@ -113,7 +113,7 @@ func (x *HTTPAction) String() string {
 }
 
 // Do the action
-func (x *HTTPAction) Do(res Result) Result {
+func (x *HTTPAction) Do(res interface{}) interface{} {
 
 	x.ensureRequest()
 
@@ -158,7 +158,7 @@ func (x *HTTPActionCheck) String() string {
 }
 
 // Do the action
-func (x *HTTPActionCheck) Do(res Result) Result {
+func (x *HTTPActionCheck) Do(res interface{}) interface{} {
 
 	resp, ok := res.(*httpResult)
 

@@ -2,10 +2,17 @@
 
 `behave` is a package helping to define, lock and check microservice behavier. It is inspired from `gherkin` but it takes advantage of [Go](https://golang.org)'s strong type syntaxis, compile time verification, package initialization and [dep](https://github.com/golang/dep) dependency manager.
 
+# Steps and features
 
-# Base features
+A behave test is split in two build components
+- `step` - Define one step that can be preparation (`Given...`), action (`When...`) or check (`Then...`).
+- `feature` - Sequential use of set of `step` to prove validity of specific feature.
 
-## Current features
+# Base steps
+
+The `behave` package provides some base steps that can be used to create features or other custom steps. 
+
+## Steps
 
 ### Make and check HTTP calls
 - `When_we_make_http_call` - Creates an HTTP call for specific url. Default method is 'GET'.
@@ -29,56 +36,74 @@ HTTP result passed on can be used as JSON result (see below).
 - `Then_check_that` - Performs a custom check written as a `func()bool`.
   - `Also_that` - Add another custom check to the behave step.
 
-## Example
+### Custom action
+- `Then_do` - Performs a custom action written as a `func()`.
+  - `Also_do` - Add another custom action to the behave step.
+
+> Please feel free to suggest additional base steps. Or even do a pull request with such.
+
+## Feature example
 ``` Go
 package main
 
 import (
-	"time"
+  "os"
+  "time"
 
-	"github.com/google/go-github/github"
-	
-	b "github.com/sofmon/behave"
+  "github.com/google/go-github/github"
+
+  b "github.com/sofmon/behave"
 )
 
-func init() {
+func Verify_sofmon_repository() bool {
 
-	rep := github.Repository{}
+  rep := github.Repository{}
 
-	b.Do(
-		b.When_we_make_http_call("https://api.github.com/repos/sofmon/behave").
-			With_method("GET").
-			With_header("Accepts", "application/json"),
-		b.Then_http_response_is(200).
-			Having_header("Content-Type", "application/json; charset=utf-8"),
-		b.Then_result_is_json().
-			Having_match_with(
-				&struct {
-					URL string `json:"html_url"`
-				}{
-					URL: "https://github.com/sofmon/behave",
-				},
-			).
-			Also_extracted_to(&rep),
-		b.Then_check_that(
-			"repository was created before 2018-11-04",
-			func() bool {
-				return rep.CreatedAt.Before(time.Date(2018, 11, 4, 0, 0, 0, 0, time.UTC))
-			},
-		).
-			Also_that(
-				"owner is sofmon",
-				func() bool {
-					return rep.Owner.Login != nil && *rep.Owner.Login == "sofmon"
-				},
-			),
-	)
+  return b.Do(
+    b.
+      When_we_make_http_call("https://api.github.com/repos/sofmon/behave").
+      With_method("GET").
+      With_header("Accepts", "application/json"),
+    b.
+      Then_http_response_is(200).
+      Having_header("Content-Type", "application/json; charset=utf-8"),
+    b.
+      Then_result_is_json().
+      Having_match_with(
+        &struct {
+          URL string `json:"html_url"`
+        }{
+          URL: "https://github.com/sofmon/behave",
+        },
+      ).
+      Also_extracted_to(&rep),
+    b.
+      Then_check_that(
+        "repository was created before 2018-11-04",
+        func() bool {
+          return rep.CreatedAt.Before(time.Date(2018, 11, 4, 0, 0, 0, 0, time.UTC))
+        },
+      ).
+      Also_that(
+        "owner is sofmon",
+        func() bool {
+          return rep.Owner.Login != nil && *rep.Owner.Login == "sofmon"
+        },
+	  ),
+  )
 }
 
-func main() {}
+func main() {
+	
+	if !Verify_sofmon_repository() {
+		os.Exit(1)
+	}
+
+}
 ```
 
-Output
+### Output
+
 ```
 $ go run .
 
@@ -101,51 +126,53 @@ $ go run .
       repository was created before 2018-11-04
 ```
 
-# Custom feature
+# Custom step
 
-## Define custom step/feature
+A custom step can, but doesent have to use the `behave` package base steps.
+
+## Definition
 
 ``` Go
 // CheckNetworkAccess as an example of custom action
 type CheckNetworkAccess struct {
-	url    string
-	status int
+  url    string
+  status int
 }
 
 /* entry point */
 
-// Given_we_can_access as example of custom action
+// Given_we_can_access specific URL
 func Given_we_can_access(url string) *CheckNetworkAccess {
-	return (&CheckNetworkAccess{}).With_url(url).With_status(200)
+  return (&CheckNetworkAccess{}).With_url(url).With_status(200)
 }
 
 /* define modifications */
 
 // With_url sets the url of the server to check
 func (x *CheckNetworkAccess) With_url(url string) *CheckNetworkAccess {
-	x.url = url
-	return x
+  x.url = url
+  return x
 }
 
 // With_status sets the expected status code
 func (x *CheckNetworkAccess) With_status(status int) *CheckNetworkAccess {
-	x.status = status
-	return x
+  x.status = status
+  return x
 }
 
 /* implementing behave action */
 
 // String of the step definition
 func (x *CheckNetworkAccess) String() string {
-	return fmt.Sprintf("Given we can access '%s' and receive status code of '%d'", x.url, x.status)
+  return fmt.Sprintf("Given we can access '%s' and receive status code of '%d'", x.url, x.status)
 }
 
 // Do the action
-func (x *CheckNetworkAccess) Do(res b.Result) b.Result {
-	return b.Do(
-		b.When_we_make_http_call(x.url),
-		b.Then_http_response_is(x.status),
-	)
+func (x *CheckNetworkAccess) Do(res interface{}) interface{} {
+  return b.Do(
+    b.When_we_make_http_call(x.url),
+    b.Then_http_response_is(x.status),
+  )
 }
 ```
 
@@ -153,11 +180,11 @@ func (x *CheckNetworkAccess) Do(res b.Result) b.Result {
 ``` Go
 b.Do(
   Given_we_can_access("https://google.com").With_status(200),
-		...
+  ...
 )
 ```
 
-Output:
+## Output
 
 ```
 $ go run .
@@ -191,10 +218,8 @@ At the moment of your commit, the service code expect specific behavier from the
         ┗━━━━━━━━━┛   ┗━━━━━━━━━━━━┛
 ```
 
-The combined behavior of those services defines the environment in which the `vouchers` service is guaranteed, or at least tested to perform correctly. 
+The combined behavior of those services defines the environment in which the `vouchers` service is guaranteed, or at least tested, to perform correctly. 
 
-This is where [dep](https://github.com/golang/dep) helps. When you write all your tests. You will put them in dedicated package for that service. Then all test execution will be define in the `init()` function. This way at the moment a behave test uses the bahave features form another package, it will trigger the behaver tests for that dependent service.
-
-Doing "`$ deb init`" or "`$ dep ensure --update`" you would download all related services behaver and lock them in the vendor folder.
+This is where [dep](https://github.com/golang/dep) helps. Doing "`$ deb init`" or "`$ dep ensure --update`" you would download all related services behaver and lock them in the vendor folder.
 
 Now the expected behavier of the environment is locked within the specific commit.

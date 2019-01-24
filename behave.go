@@ -13,12 +13,7 @@ import (
 // Then.. - we check for specific result
 type Action interface {
 	String() string
-	Do(Result) Result
-}
-
-// Result of an action
-type Result interface {
-	String() string
+	Do(interface{}) interface{}
 }
 
 // JSONResult is a result that can be read as JSON object
@@ -39,7 +34,7 @@ func Do(acts ...Action) (ok bool) {
 
 	ok = true
 
-	var res Result
+	var res interface{}
 	for i, act := range acts {
 
 		if act == nil {

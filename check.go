@@ -39,7 +39,7 @@ func (x *Check) String() string {
 }
 
 // Do the action
-func (x *Check) Do(res Result) Result {
+func (x *Check) Do(res interface{}) interface{} {
 
 	for k, f := range x.checks {
 		if !f() {

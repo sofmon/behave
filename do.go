@@ -38,7 +38,7 @@ func (x *DoSomething) String() string {
 }
 
 // Do the action
-func (x *DoSomething) Do(res Result) Result {
+func (x *DoSomething) Do(res interface{}) interface{} {
 
 	for _, f := range x.dos {
 		f()
