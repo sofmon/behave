@@ -6,7 +6,7 @@ import (
 	b "github.com/sofmon/behave"
 )
 
-// Given_we_can_access as example of custom action
+// Given_we_can_access specific URL
 func Given_we_can_access(url string) *CheckNetworkAccess {
 	return (&CheckNetworkAccess{}).With_url(url).With_status(200)
 }
@@ -35,7 +35,7 @@ func (x *CheckNetworkAccess) String() string {
 }
 
 // Do the action
-func (x *CheckNetworkAccess) Do(res b.Result) b.Result {
+func (x *CheckNetworkAccess) Do(res interface{}) interface{} {
 	return b.Do(
 		b.When_we_make_http_call(x.url),
 		b.Then_http_response_is(x.status),
