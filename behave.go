@@ -22,7 +22,7 @@ type JSONResult interface {
 }
 
 const (
-	prefixSeperator = "    "
+	prefixSeparator = "  "
 )
 
 var (
@@ -68,11 +68,11 @@ func Do(acts ...Action) (ok bool) {
 }
 
 func increasePrefix() {
-	prefix += prefixSeperator
+	prefix += prefixSeparator
 }
 
 func decreasePrefix() {
-	prefix = prefix[:len(prefix)-len(prefixSeperator)]
+	prefix = prefix[:len(prefix)-len(prefixSeparator)]
 }
 
 func prefixLogf(msg string, args ...interface{}) {

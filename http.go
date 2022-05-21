@@ -4,6 +4,7 @@ package behave
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -100,7 +101,18 @@ func (x *HTTPAction) String() string {
 
 	x.ensureRequest()
 
-	data, err := httputil.DumpRequestOut(x.req, true)
+	// hide Authorization data
+	req := x.req.Clone(context.Background())
+	authHeader := req.Header.Get("Authorization")
+	if authHeader != "" {
+		len := len(authHeader)
+		if len > 10 {
+			len = 10
+		}
+		req.Header.Set("Authorization", authHeader[:len]+"...")
+	}
+
+	data, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		panic(err)
 	}

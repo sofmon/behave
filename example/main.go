@@ -3,17 +3,20 @@ package main
 import (
 	"time"
 
-	"github.com/google/go-github/github"
-
 	b "github.com/sofmon/behave"
 )
 
 func init() {
 
-	rep := github.Repository{}
+	rep := struct {
+		CreatedAt time.Time `json:"created_at"`
+		Owner     struct {
+			Login *string `json:"login"`
+		} `json:"owner"`
+	}{}
 
 	b.Do(
-		Given_we_can_access("https://google.com").With_status(200),
+		Given_we_can_access("https://www.google.com").With_status(200),
 		b.When_we_make_http_call("https://api.github.com/repos/sofmon/behave").
 			With_method("GET").
 			With_header("Accepts", "application/json"),
