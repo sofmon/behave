@@ -4,7 +4,6 @@ package behave
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,8 +30,6 @@ type HTTPAction struct {
 	headers    map[string]string
 	bodyString string
 	bodyJSON   interface{}
-
-	req *http.Request
 }
 
 // With_url changes the HTTP method
@@ -68,10 +65,8 @@ func (x *HTTPAction) With_string_body(body string) *HTTPAction {
 	return x
 }
 
-func (x *HTTPAction) ensureRequest() {
-	if x.req != nil {
-		return
-	}
+func (x *HTTPAction) createRequest() (req *http.Request) {
+
 	body := []byte{}
 
 	switch {
@@ -87,22 +82,23 @@ func (x *HTTPAction) ensureRequest() {
 	}
 
 	var err error
-	x.req, err = http.NewRequest(x.method, x.url, bytes.NewBuffer(body))
+	req, err = http.NewRequest(x.method, x.url, bytes.NewBuffer(body))
 	if err != nil {
 		panic(err)
 	}
 
 	for k, v := range x.headers {
-		x.req.Header.Set(k, v)
+		req.Header.Set(k, v)
 	}
+
+	return
 }
 
 func (x *HTTPAction) String() string {
 
-	x.ensureRequest()
+	req := x.createRequest()
 
 	// hide Authorization data
-	req := x.req.Clone(context.Background())
 	authHeader := req.Header.Get("Authorization")
 	if authHeader != "" {
 		len := len(authHeader)
@@ -127,9 +123,9 @@ func (x *HTTPAction) String() string {
 // Do the action
 func (x *HTTPAction) Do(res interface{}) interface{} {
 
-	x.ensureRequest()
+	req := x.createRequest()
 
-	resp, err := http.DefaultClient.Do(x.req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
