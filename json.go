@@ -17,26 +17,50 @@ func Then_result_is_json() *JSONMatch {
 
 // JSONMatch action
 type JSONMatch struct {
-	v interface{}
-	e interface{}
+	v  any
+	vf func() any
+	e  any
 }
 
 // Having_match_with specific object
-func (x *JSONMatch) Having_match_with(v interface{}) *JSONMatch {
+func (x *JSONMatch) Having_match_with(v any) *JSONMatch {
 	x.v = v
 	return x
 }
 
+// Having_match_with specific object
+func (x *JSONMatch) Having_match_with_func(f func() any) *JSONMatch {
+	x.vf = f
+	return x
+}
+
 // Also_extracted_to specific object
-func (x *JSONMatch) Also_extracted_to(v interface{}) *JSONMatch {
+func (x *JSONMatch) Also_extracted_to(v any) *JSONMatch {
 	x.e = v
 	return x
 }
 
 /* Action implementation */
 
-func (x *JSONMatch) String() string {
+func (x *JSONMatch) String(res any) string {
 	sb := bytes.NewBufferString("Then result is JSON object")
+
+	jsonObj, ok := res.(JSONResult)
+
+	if !ok || jsonObj == nil {
+		panic(errors.New("privies operation did not produce object that can provide json"))
+	}
+
+	if x.e != nil {
+		err := json.Unmarshal(jsonObj.JSON(), x.e)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if x.vf != nil {
+		x.v = x.vf()
+	}
 
 	if x.v != nil {
 		bytes, err := json.Marshal(x.v)
@@ -52,12 +76,23 @@ func (x *JSONMatch) String() string {
 }
 
 // Do the action
-func (x *JSONMatch) Do(res interface{}) interface{} {
+func (x *JSONMatch) Do(res any) any {
 
 	jsonObj, ok := res.(JSONResult)
 
 	if !ok || jsonObj == nil {
 		panic(errors.New("privies operation did not produce object that can provide json"))
+	}
+
+	if x.e != nil {
+		err := json.Unmarshal(jsonObj.JSON(), x.e)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if x.vf != nil {
+		x.v = x.vf()
 	}
 
 	if x.v != nil {
@@ -78,13 +113,6 @@ func (x *JSONMatch) Do(res interface{}) interface{} {
 
 		if string(expData) != string(resData) {
 			panic(fmt.Errorf("expected json object does not match expectations; received object: `%s`", string(resData)))
-		}
-	}
-
-	if x.e != nil {
-		err := json.Unmarshal(jsonObj.JSON(), x.e)
-		if err != nil {
-			panic(err)
 		}
 	}
 

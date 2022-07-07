@@ -26,7 +26,7 @@ func (x *Check) Also_that(desc string, check func() bool) *Check {
 
 /* Action implementation */
 
-func (x *Check) String() string {
+func (x *Check) String(res any) string {
 	sb := bytes.NewBufferString("Then we check that: \n")
 
 	for k := range x.checks {
@@ -39,7 +39,7 @@ func (x *Check) String() string {
 }
 
 // Do the action
-func (x *Check) Do(res interface{}) interface{} {
+func (x *Check) Do(res any) any {
 
 	for k, f := range x.checks {
 		if !f() {

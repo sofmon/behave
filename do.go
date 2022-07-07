@@ -25,7 +25,7 @@ func (x *DoSomething) Also_do(desc string, do func()) *DoSomething {
 
 /* Action implementation */
 
-func (x *DoSomething) String() string {
+func (x *DoSomething) String(res any) string {
 	sb := bytes.NewBufferString("Then we do: \n")
 
 	for k := range x.dos {
@@ -38,7 +38,7 @@ func (x *DoSomething) String() string {
 }
 
 // Do the action
-func (x *DoSomething) Do(res interface{}) interface{} {
+func (x *DoSomething) Do(res any) any {
 
 	for _, f := range x.dos {
 		f()

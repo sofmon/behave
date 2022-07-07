@@ -29,7 +29,7 @@ type HTTPAction struct {
 	url        string
 	headers    map[string]string
 	bodyString string
-	bodyJSON   interface{}
+	bodyJSON   any
 }
 
 // With_url changes the HTTP method
@@ -54,7 +54,7 @@ func (x *HTTPAction) With_header(key, val string) *HTTPAction {
 }
 
 // With_json_body changes the HTTP body to JSON object
-func (x *HTTPAction) With_json_body(body interface{}) *HTTPAction {
+func (x *HTTPAction) With_json_body(body any) *HTTPAction {
 	x.bodyJSON = body
 	return x
 }
@@ -94,7 +94,7 @@ func (x *HTTPAction) createRequest() (req *http.Request) {
 	return
 }
 
-func (x *HTTPAction) String() string {
+func (x *HTTPAction) String(res any) string {
 
 	req := x.createRequest()
 
@@ -121,7 +121,7 @@ func (x *HTTPAction) String() string {
 }
 
 // Do the action
-func (x *HTTPAction) Do(res interface{}) interface{} {
+func (x *HTTPAction) Do(res any) any {
 
 	req := x.createRequest()
 
@@ -154,7 +154,7 @@ func (x *HTTPActionCheck) Having_header(key, value string) *HTTPActionCheck {
 	return x
 }
 
-func (x *HTTPActionCheck) String() string {
+func (x *HTTPActionCheck) String(res any) string {
 	sb := bytes.NewBufferString(fmt.Sprintf("Then HTTP response status code must be '%d'", x.statusCode))
 
 	// headers
@@ -166,7 +166,7 @@ func (x *HTTPActionCheck) String() string {
 }
 
 // Do the action
-func (x *HTTPActionCheck) Do(res interface{}) interface{} {
+func (x *HTTPActionCheck) Do(res any) any {
 
 	resp, ok := res.(*httpResult)
 

@@ -30,12 +30,12 @@ func (x *CheckNetworkAccess) With_status(status int) *CheckNetworkAccess {
 }
 
 // String of the step definition
-func (x *CheckNetworkAccess) String() string {
+func (x *CheckNetworkAccess) String(res any) string {
 	return fmt.Sprintf("Given we can access '%s' and receive status code of '%d'", x.url, x.status)
 }
 
 // Do the action
-func (x *CheckNetworkAccess) Do(res interface{}) interface{} {
+func (x *CheckNetworkAccess) Do(res any) any {
 	return b.Do(
 		b.When_we_make_http_call(x.url),
 		b.Then_http_response_is(x.status),

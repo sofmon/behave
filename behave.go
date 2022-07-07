@@ -12,8 +12,8 @@ import (
 // When... - we perform an action
 // Then.. - we check for specific result
 type Action interface {
-	String() string
-	Do(interface{}) interface{}
+	String(any) string
+	Do(any) any
 }
 
 // JSONResult is a result that can be read as JSON object
@@ -34,7 +34,7 @@ func Do(acts ...Action) (ok bool) {
 
 	ok = true
 
-	var res interface{}
+	var res any
 	for i, act := range acts {
 
 		if act == nil {
@@ -52,7 +52,7 @@ func Do(acts ...Action) (ok bool) {
 			}()
 
 			increasePrefix()
-			prefixLogf("(%d) %s", i+1, act.String())
+			prefixLogf("(%d) %s", i+1, act.String(res))
 			res = act.Do(res)
 			decreasePrefix()
 
@@ -75,7 +75,7 @@ func decreasePrefix() {
 	prefix = prefix[:len(prefix)-len(prefixSeparator)]
 }
 
-func prefixLogf(msg string, args ...interface{}) {
+func prefixLogf(msg string, args ...any) {
 	msg = fmt.Sprintf(msg, args...)
 	msg = "\n" + prefix + strings.Replace(msg, "\n", "\n"+prefix, -1)
 	fmt.Println(msg)
